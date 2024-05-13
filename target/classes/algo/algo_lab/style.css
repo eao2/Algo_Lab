@@ -1,0 +1,32 @@
+.text-input {
+    -fx-control-inner-background: #202020;  /* Maintain dark background */
+    -fx-background-color: #202020;  /* Set background color */
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-background-insets: 0;
+    -fx-border-width: 0;
+}
+.panel{
+    -fx-control-inner-background: #202020;  /* Maintain dark background */
+    -fx-background-color: #202020;  /* Set background color */
+    -fx-padding: 16px;  /* Add some padding (optional) */
+    -fx-border-radius: 16px;
+    -fx-background-radius: 16px;
+}
+.description{
+    -fx-background-color: #202020;  /* Set background color */
+    -fx-control-inner-background: #202020;  /* Maintain dark background */
+    -fx-background-radius: 16px;
+    -fx-padding: 8px;  /* Add some padding (optional) */
+}
+.grid{
+    -fx-min-width: 500px;
+    -fx-background-color: #0F0F0F;
+    -fx-hgap: 10px;
+    -fx-wgap: 20px;
+    -fx-padding: 10px;
+}
+
+.scene{
+    -fx-min-width: 500px;
+}
