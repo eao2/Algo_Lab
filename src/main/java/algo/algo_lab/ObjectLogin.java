@@ -31,8 +31,8 @@ public class ObjectLogin implements Serializable {
         return "ObjectLogin{" +
                 "value1='" + value1 + '\'' +
                 ", value2=" + value2 + '\'' +
-                ", value2=" + value3 + '\'' +
-                ", value2=" + value4 +
+                ", value3=" + value3 + '\'' +
+                ", value4=" + value4 +
                 '}';
     }
 }

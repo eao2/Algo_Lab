@@ -85,7 +85,8 @@ public class Admin {
         JPanel topPanel = new JPanel(new BorderLayout());
         JPanel mainPanel = new JPanel(new BorderLayout());
         JPanel descPanel = new JPanel(new BorderLayout());
-        JPanel codePanel = new JPanel(new BorderLayout());
+//        JPanel codePanel = new JPanel(new BorderLayout());
+        JPanel testCasePanel = new JPanel(new GridLayout(4,2,10, 10));
 
         themeComboBox.setPreferredSize(new Dimension(200, 36));
 
@@ -98,9 +99,15 @@ public class Admin {
         descAreaText.setPreferredSize(new Dimension(600, 36));
         JTextArea descArea = new JTextArea();
         descArea.setPreferredSize(new Dimension(600, 200));
-        JLabel codeAreaText = new JLabel("Код:");
-        codeAreaText.setPreferredSize(new Dimension(600, 36));
-        JTextArea codeArea = new JTextArea();
+        JLabel testCaseText1 = new JLabel("input");
+        JLabel testCaseText2 = new JLabel("output");
+        JTextField case11 = new JTextField();
+        JTextField case12 = new JTextField();
+        JTextField case21 = new JTextField();
+        JTextField case22 = new JTextField();
+        JTextField case31 = new JTextField();
+        JTextField case32 = new JTextField();
+
         JButton button = new JButton("Бодлого нэмэх");
 
 
@@ -110,9 +117,15 @@ public class Admin {
             public void actionPerformed(ActionEvent e) {
                 String title = titleField.getText();
                 String description = descArea.getText();
-                String code = codeArea.getText();
+                int Case11 = Integer.parseInt(case11.getText());
+                int Case12 = Integer.parseInt(case12.getText());
+                int Case21 = Integer.parseInt(case21.getText());
+                int Case22 = Integer.parseInt(case22.getText());
+                int Case31 = Integer.parseInt(case31.getText());
+                int Case32 = Integer.parseInt(case32.getText());
+
                 // Create and send object to server
-                ObjectProblem objectProblem = new ObjectProblem(title, description, code);
+                ObjectProblem objectProblem = new ObjectProblem(title, description, Case11, Case12, Case21, Case22, Case31, Case32);
                 try {
                     out.writeObject(objectProblem);
                     String status = reader.readLine();
@@ -139,14 +152,20 @@ public class Admin {
         descPanel.add(descAreaText, BorderLayout.NORTH);
         descPanel.add(descArea, BorderLayout.CENTER);
 
-        codePanel.add(codeAreaText, BorderLayout.NORTH);
-        codePanel.add(codeArea, BorderLayout.CENTER);
+        testCasePanel.add(testCaseText1);
+        testCasePanel.add(testCaseText2);
+        testCasePanel.add(case11);
+        testCasePanel.add(case12);
+        testCasePanel.add(case21);
+        testCasePanel.add(case22);
+        testCasePanel.add(case31);
+        testCasePanel.add(case32);
 
         // Add components to the main panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); // Panel to hold buttons
         buttonPanel.add(button);
         mainPanel.add(descPanel, BorderLayout.NORTH);
-        mainPanel.add(codePanel, BorderLayout.CENTER);
+        mainPanel.add(testCasePanel, BorderLayout.CENTER);
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         // Add panels to the frame

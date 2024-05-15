@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.jar.JarFile;
 //import java.sql.PreparedStatement;
 //import java.sql.ResultSet;
@@ -55,12 +56,42 @@ public class Client {
         System.out.println("Client: CLIENT_CONNECT");
         writer.flush(); // Flush the writer to ensure the message is sent immediately
 
+        showInputDialog(null);
+
+        // Receive ArrayList from the server
+        ArrayList<String> receivedArrayList = (ArrayList<String>) in.readObject();
+
+        // Create a label to add buttons
+        JLabel problemList = new JLabel();
+        problemList.setLayout(new GridLayout(receivedArrayList.size(), 1,10,10));
+
+
         // Create a JComboBox with theme options
         JComboBox<String> themeComboBox = new JComboBox<>(new String[]{"FlatGitHubDarkIJTheme", "FlatGitHubIJTheme"});
         themeComboBox.setSelectedItem("FlatGitHubDarkIJTheme"); // Set default theme
 
-        // Create an instance of the Problem class
-        newFrame = new Problem(mframe, themeComboBox, "abb");
+        // Add buttons to the label
+        for (String value : receivedArrayList) {
+            JButton button = new JButton(value);
+            problemList.add(button);
+            button.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    // Create an instance of the Problem class
+                    try {
+                        newFrame = new Problem(mframe, Username, themeComboBox, IP, value);
+                    } catch (IOException | ClassNotFoundException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                    newFrame.getFrame().setVisible(true);
+                }
+            });
+        }
+
+
+//        // Create an instance of the Problem class
+//        newFrame = new Problem(mframe, themeComboBox, "abb");
 
         // Create an ActionListener for the themeComboBox
         themeComboBox.addActionListener(new ActionListener() {
@@ -91,48 +122,27 @@ public class Client {
         JPanel mainPanel = new JPanel(new BorderLayout());
         JPanel sidePanel = new JPanel(new BorderLayout());
 
-        // Create JTextArea and JButtons
-        JTextArea codeArea = new JTextArea();
-        JButton button = new JButton("Click me");
-        JButton button3 = new JButton("Click me");
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Create and show the new frame
-                newFrame.getFrame().setVisible(true);
-            }
-        });
-        button3.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    showInputDialog(null);
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                } catch (ClassNotFoundException ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
-        });
+//        button.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                // Create and show the new frame
+//                newFrame.getFrame().setVisible(true);
+//            }
+//        });
         // Customize the preferred size of the buttons
         Dimension buttonSize = new Dimension(150, 50);
-        button.setPreferredSize(buttonSize);
-        button3.setPreferredSize(buttonSize);
 
         // Add components to the side panel
         sidePanel.add(themeComboBox, BorderLayout.NORTH);
 
         // Add components to the main panel
-        mainPanel.add(codeArea, BorderLayout.CENTER);
+        mainPanel.add(problemList, BorderLayout.CENTER);
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); // Panel to hold buttons
-        buttonPanel.add(button);
-        buttonPanel.add(button3);
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         // Add panels to the frame
         mframe.add(sidePanel, BorderLayout.WEST);
         mframe.add(mainPanel, BorderLayout.CENTER);
-        showInputDialog(null);
         System.out.println("showInputDialog");
         // Make the frame visible
         mframe.setVisible(showFrame);

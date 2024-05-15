@@ -1,24 +1,27 @@
-// Problem.java
 package algo.algo_lab;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.plaf.basic.BasicLabelUI;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
+import java.net.Socket;
 
 import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatGitHubDarkIJTheme;
 import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatGitHubIJTheme;
 
-
 public class Problem {
     private final JFrame frame;
     private final JComboBox<String> themeComboBox;
-    public Problem(JFrame mainFrame, JComboBox<String> themeComboBox, String problemName) {
+
+    private static ObjectOutputStream out;
+    private static ObjectInputStream in;
+    private static BufferedReader reader;
+    private static BufferedWriter writer;
+
+    private static String IP;
+
+    public Problem(JFrame mainFrame, String Username, JComboBox<String> themeComboBox, String IPv, String problemName) throws IOException, ClassNotFoundException {
         this.themeComboBox = themeComboBox;
         frame = new JFrame(mainFrame.getGraphicsConfiguration());
         frame.setTitle(problemName);
@@ -30,15 +33,27 @@ public class Problem {
         frame.setLayout(new BorderLayout());
         // Create a JPanel for main content
         JPanel mainPanel = new JPanel(new BorderLayout());
-//        JPanel sidePanel = new JPanel(new BorderLayout());
+        IP = IPv;
 
+        establishConnection();
 
-         String descriptionText = """
-                this is test of multiple line test aaaaaaaaasafsfsdfdsfd
-                haha
-                idk
-                gue
-                """;
+        writer.write("PROBLEM_CONNECT\n");
+        System.out.println("PROBLEM: PROBLEM_CONNECT");
+        writer.flush(); // Flush the writer to ensure the message is sent immediately
+
+        writer.write(problemName + "\n");
+        System.out.println(problemName + "\n");
+        writer.flush(); // Flush the writer to ensure the message is sent immediately
+
+        Object receivedObject = in.readObject();
+        // Process the received object (optional)
+        ObjectProblem receivedObjectProblem = (ObjectProblem) receivedObject;
+        System.out.println("Received object from server: " + receivedObjectProblem);
+
+        String title = receivedObjectProblem.getValue1();
+        String desc = receivedObjectProblem.getValue2();
+
+        String descriptionText = desc;
 
         // Create JTextArea and JButtons
         JTextArea codeArea = new JTextArea();
@@ -48,33 +63,58 @@ public class Problem {
         description.setPreferredSize(new Dimension(200, 100));
         description.setVerticalAlignment(SwingConstants.TOP); // Align text to the top
         description.setHorizontalAlignment(SwingConstants.LEFT); // Align text to the left
-        JButton button = new JButton("Click me");
-        JButton button3 = new JButton("Click me");
+        JButton button = new JButton("Submit");
 
         // Customize the preferred size of the buttons
         Dimension buttonSize = new Dimension(150, 50);
         button.setPreferredSize(buttonSize);
-        button3.setPreferredSize(buttonSize);
 
         // Add components to the main panel
         mainPanel.add(codeArea, BorderLayout.CENTER);
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); // Panel to hold buttons
         buttonPanel.add(button);
-        buttonPanel.add(button3);
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
         mainPanel.add(description, BorderLayout.WEST);
         // Add panels to the frame
-//        frame.add(sidePanel, BorderLayout.WEST);
         frame.add(mainPanel, BorderLayout.CENTER);
 
-        // Add ActionListener to button3
-        button3.addActionListener(new ActionListener() {
+        // Add ActionListener to button
+        button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String codeText = codeArea.getText();
-                description.setText("<html>" + codeText.replaceAll("\n", "<br>") + "</html>");
+                ObjectProblemClient objectProblemSolve = new ObjectProblemClient(title, desc, codeText);
+                try {
+                    out.writeObject(objectProblemSolve);
+                    out.flush();
+
+                    new SwingWorker<String, Void>() {
+                        @Override
+                        protected String doInBackground() throws Exception {
+                            return reader.readLine();
+                        }
+
+                        @Override
+                        protected void done() {
+                            try {
+                                String status = get();
+                                if (status.equals("success")) {
+                                    JOptionPane.showMessageDialog(null, "Зөв хариуллаа!", "Амжилттай", JOptionPane.PLAIN_MESSAGE);
+                                } else {
+                                    JOptionPane.showMessageDialog(null, "Буруу хариуллаа!", "Амжилтгүй", JOptionPane.PLAIN_MESSAGE);
+                                }
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    }.execute();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
+
+        frame.setVisible(true);
     }
 
     public JFrame getFrame() {
@@ -98,6 +138,17 @@ public class Problem {
         } catch (UnsupportedLookAndFeelException ex) {
             ex.printStackTrace();
         }
+    }
 
+    private static void establishConnection() {
+        try {
+            Socket socket = new Socket(IP, 10101);
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            out = new ObjectOutputStream(socket.getOutputStream());
+            in = new ObjectInputStream(socket.getInputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
